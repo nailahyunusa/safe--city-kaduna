@@ -14,37 +14,58 @@ let currentLocation = null; // Store selected location
 // ============================
 // Use My Location
 // ============================
-useLocationBtn.addEventListener('click', () => {
+async function requestLocationWithPermission() {
   if (!navigator.geolocation) {
-    alert('Geolocation is not supported by your browser.');
-    return;
+    locationInfo.textContent = 'Geolocation is not supported by your browser.';
+    return null;
   }
 
+  // Helpful message while we check/ask
   locationInfo.textContent = 'Locating...';
 
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-      currentLocation = { lat: latitude, lng: longitude };
-      locationInfo.textContent = `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`;
-    },
-    (error) => {
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          locationInfo.textContent = 'Permission denied.';
-          break;
-        case error.POSITION_UNAVAILABLE:
-          locationInfo.textContent = 'Position unavailable.';
-          break;
-        case error.TIMEOUT:
-          locationInfo.textContent = 'Location request timed out.';
-          break;
-        default:
-          locationInfo.textContent = 'An unknown error occurred.';
+  // Check Permissions API when available
+  try {
+    if (navigator.permissions && navigator.permissions.query) {
+      const perm = await navigator.permissions.query({ name: 'geolocation' });
+      if (perm.state === 'denied') {
+        locationInfo.innerHTML = `Location access is blocked. Please enable location for this site in your browser settings or use the manual address field.`;
+        return null;
       }
-    },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-  );
+      // if prompt or granted, proceed to getCurrentPosition
+    }
+  } catch (e) {
+    // Permissions API not supported — continue to request location
+  }
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        resolve({ lat: latitude, lng: longitude });
+      },
+      (error) => {
+        if (error && error.code === error.PERMISSION_DENIED) {
+          locationInfo.innerHTML = `Permission denied. To enable: open your browser/site settings and allow Location access, or enter an address manually.`;
+        } else if (error && error.code === error.POSITION_UNAVAILABLE) {
+          locationInfo.textContent = 'Position unavailable.';
+        } else if (error && error.code === error.TIMEOUT) {
+          locationInfo.textContent = 'Location request timed out.';
+        } else {
+          locationInfo.textContent = 'An unknown error occurred.';
+        }
+        resolve(null);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  });
+}
+
+useLocationBtn.addEventListener('click', async () => {
+  const loc = await requestLocationWithPermission();
+  if (loc) {
+    currentLocation = { ...loc };
+    locationInfo.textContent = `Latitude: ${loc.lat.toFixed(6)}, Longitude: ${loc.lng.toFixed(6)}`;
+  }
 });
 
 // ============================
