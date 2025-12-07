@@ -1,0 +1,25 @@
+{
+  "name": "SafeCity Kaduna - Crime Reporting",
+  "short_name": "SafeCity",
+  "description": "Report and track crime incidents in Kaduna",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0d1b2a",
+  "theme_color": "#1b263b",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%231b263b' width='192' height='192'/%3E%3Ctext x='50%25' y='50%25' font-size='100' fill='%2322ca39' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ESC%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%231b263b' width='512' height='512'/%3E%3Ctext x='50%25' y='50%25' font-size='280' fill='%2322ca39' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ESC%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

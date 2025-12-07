@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SafeCity Kaduna</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1b263b">
+</head>
+<body>
+  <nav>
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="40" height="40">
+        <path d="M32 2l26 10v18c0 16-11 30-26 34C17 60 6 46 6 30V12z" fill="#e63946" stroke="#fff" stroke-width="2"/>
+        <text x="50%" y="55%" font-size="12" text-anchor="middle" fill="white" font-family="Arial" dy=".3em">SC</text>
+      </svg>
+      <span>SafeCity Kaduna</span>
+    </div>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="report.html">Report</a>
+      <a href="about.html">About</a>
+      <!-- <a href="dashboard.html">Dashboard</a> -->
+    </div>
+  </nav>
+  <header class="hero">
+    <div class="hero-content">
+      <!-- <img src="hero.jpeg" alt="SafeCity Kaduna" style="width:150px; height:auto; margin-bottom:20px;"> -->
+      <h1>SafeCity Kaduna</h1>
+      <p>Report crimes quickly and connect with security agencies in Kaduna State.</p>
+      <a href="report.html" class="btn">Report a Crime</a>
+    </div>
+  </header>
+
+  <footer>
+    &copy; 2025 SafeCity Kaduna | Powered by community & technology
+  </footer>
+  
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(reg => {
+          console.log("Service Worker Registered:", reg);
+          reg.addEventListener("updatefound", () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                console.log("New Service Worker available - app updated");
+              }
+            });
+          });
+        })
+        .catch(error => console.log("Service Worker Registration Failed:", error));
+    }
+    
+    // Handle app installation
+    let deferredPrompt;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      console.log("App can be installed");
+    });
+  </script>
+
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon-192x192.png">
+  <meta name="theme-color" content="#0b1d2d">
+</body>
+</html>

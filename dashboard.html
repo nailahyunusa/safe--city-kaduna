@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crime Reports Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+  <nav>
+    <div class="logo">🛡️ SafeCity Kaduna</div>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="report.html">Report</a>
+      <a href="about.html">About</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+  </nav>
+
+  <h1 style="text-align:center;">Crime Reports Dashboard</h1>
+  <div id="map" style="height:400px; margin:20px;"></div>
+  <h2 style="text-align:center;">Reports List</h2>
+  <table border="1" cellspacing="0" cellpadding="8" style="width:90%; margin:20px auto; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Address</th>
+        <th>Contact</th>
+        <th>Location</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody id="reportsTable"></tbody>
+  </table>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | SafeCity</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon-192x192.png">
+  <meta name="theme-color" content="#0b1d2d">
+</head>
+<body>
+  <nav>
+    <div class="logo">🛡️ SafeCity Kaduna</div>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="report.html">Report</a>
+      <a href="about.html">About</a>
+      <a href="dashboard.html">Dashboard</a>
+      <button onclick="logout()" class="logout-btn">Logout</button>
+    </div>
+  </nav>
+
+  <main class="admin-content">
+    <h1>📊 Admin Dashboard</h1>
+    
+    <div class="alert-box">
+      <h3>🚨 Emergency Response</h3>
+      <p id="alertLog">No emergency action taken</p>
+      <button id="whatsappBtn">📲 Send WhatsApp Alert</button>
+      <button id="smsBtn">📩 Send SMS Alert</button>
+    </div>
+
+    <div class="dashboard-container">
+      <div class="map-section">
+        <div id="map"></div>
+      </div>
+      
+      <div class="table-section">
+        <div class="card">
+          <h3>📋 Crime Reports</h3>
+          <div class="table-wrapper">
+            <table id="reportsTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Type</th>
+                  <th>Severity</th>
+                  <th>Address</th>
+                  <th>Contact</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast"></div>
+
+  <!-- Notification Sound -->
+  <audio id="notifySound">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-bell-notification-933.mp3" type="audio/mpeg">
+  </audio>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker Registered"));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeCity Admin Login</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0d1b2a, #1b263b, #415a77);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    .login-container {
+      background: #ffffff10;
+      padding: 40px;
+      border-radius: 15px;
+      width: 320px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid #ffffff30;
+      color: white;
+    }
+
+    .login-container h2 {
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0096c7;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #0077b6;
+    }
+
+    #error {
+      color: #ffb3b3;
+      margin-bottom: 10px;
+      height: 18px;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>SafeCity Admin</h2>
+    <p class="subtitle">Administrator Access Only</p>
+
+    <div class="form-group">
+      <input type="text" id="username" placeholder="Enter Username">
+    </div>
+
+    <div class="form-group">
+      <input type="password" id="password" placeholder="Enter Password">
+    </div>
+
+    <p id="error"></p>
+  
+    <button onclick=adminLogin()>Login</button>
+  </div>
+
+  <script>
+    function adminLogin() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const error = document.getElementById("error");
+
+      // *** SET YOUR ADMIN LOGIN HERE ***
+      const ADMIN_USER = "admin";
+      const ADMIN_PASS = "12345";
+
+      if (!username || !password) {
+        error.textContent = "Please enter username and password.";
+        return;
+      }
+
+      if (username === ADMIN_USER && password === ADMIN_PASS) {
+        error.style.color = "lightgreen";
+        error.textContent = "Login successful...";
+
+        // Keep admin logged in (used by admin.js)
+        localStorage.setItem("adminAuth", "true");
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = "admin-panel.html";
+        }, 700);
+      } else {
+        error.textContent = "Incorrect username or password.";
+      }
+    }
+  </script>
+
+</body>
+</html>

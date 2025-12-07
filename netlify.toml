@@ -1,0 +1,25 @@
+[build]
+  publish = "."
+  command = "echo 'No build required'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[headers]
+  [[headers.values]]
+    key = "Cache-Control"
+    value = "public, max-age=3600"
+
+  [[headers.values]]
+    key = "X-Frame-Options"
+    value = "SAMEORIGIN"
+
+  [[headers.values]]
+    key = "X-Content-Type-Options"
+    value = "nosniff"
+
+  [[headers.values]]
+    key = "Referrer-Policy"
+    value = "strict-origin-when-cross-origin"
