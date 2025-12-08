@@ -296,6 +296,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const alertLog = document.getElementById("alertLog");
   const whatsappBtn = document.getElementById("whatsappBtn");
   const smsBtn = document.getElementById("smsBtn");
+  const importInput = document.getElementById('importImagesInput');
+  const importBtn = document.getElementById('importImagesBtn');
+  const matchMethodEl = document.getElementById('matchMethod');
+  const importResultsEl = document.getElementById('importResults');
 
   // Function to refresh reports
   function refreshReports() {
@@ -412,4 +416,79 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshReports();
     }
   });
+
+  // Import images flow
+  if (importBtn && importInput) {
+    importBtn.addEventListener('click', async () => {
+      const files = Array.from(importInput.files || []);
+      if (!files.length) {
+        importResultsEl.innerText = 'No files selected.';
+        return;
+      }
+
+      importResultsEl.innerText = 'Processing images...';
+      const reports = JSON.parse(localStorage.getItem('crimeReports')) || [];
+      const matchMethod = matchMethodEl ? matchMethodEl.value : 'filename';
+
+      const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const matched = [];
+      const unmatched = [];
+
+      for (const file of files) {
+        let dataUrl = '';
+        try {
+          dataUrl = await readFileAsDataUrl(file);
+        } catch (err) {
+          console.warn('Failed to read', file.name, err);
+          unmatched.push({ file: file.name, reason: 'read-error' });
+          continue;
+        }
+
+        // Try to match by selected method
+        let found = null;
+        if (matchMethod === 'filename') {
+          // exact filename match or contains
+          found = reports.find(r => r.photo && String(r.photo) === file.name || (r.photo && String(r.photo).includes && String(r.photo).includes(file.name)));
+        } else if (matchMethod === 'id') {
+          // try to find an id number in the filename
+          const m = file.name.match(/(\d+)/);
+          if (m) {
+            const idNum = parseInt(m[1], 10);
+            found = reports.find(r => r.id === idNum);
+          }
+        }
+
+        if (found) {
+          found.photo = dataUrl;
+          matched.push({ file: file.name, id: found.id });
+        } else {
+          unmatched.push({ file: file.name, reason: 'no-match' });
+        }
+      }
+
+      // Save updated reports
+      localStorage.setItem('crimeReports', JSON.stringify(reports));
+      refreshReports();
+
+      // Display results
+      let resultHtml = '';
+      if (matched.length) {
+        resultHtml += `<div style="color:green">Matched ${matched.length} images:<ul>`;
+        matched.forEach(m => resultHtml += `<li>${m.file} → report #${m.id}</li>`);
+        resultHtml += '</ul></div>';
+      }
+      if (unmatched.length) {
+        resultHtml += `<div style="color:#a33">Unmatched ${unmatched.length} images:<ul>`;
+        unmatched.forEach(u => resultHtml += `<li>${u.file} — ${u.reason}</li>`);
+        resultHtml += '</ul></div>';
+      }
+      importResultsEl.innerHTML = resultHtml || 'No changes made.';
+    });
+  }
 });

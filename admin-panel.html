@@ -41,6 +41,16 @@
       <p id="reportCount">Reports: 0</p>
       <button id="addTestDataBtn" onclick="addTestData()">📌 Add Test Markers</button>
       <button id="clearDataBtn" onclick="clearAllData()">🗑️ Clear All Reports</button>
+      <hr>
+      <h4>📁 Import Images</h4>
+      <p style="font-size:0.9em;color:#666;">Upload images and match them to existing reports by filename or by id (try filename first).</p>
+      <input id="importImagesInput" type="file" accept="image/*" multiple />
+      <select id="matchMethod">
+        <option value="filename">Match by filename</option>
+        <option value="id">Match by report id in filename</option>
+      </select>
+      <button id="importImagesBtn">Import Images</button>
+      <div id="importResults" style="margin-top:8px;font-size:0.9em;color:#222;"></div>
     </div>
 
     <div class="dashboard-container">
