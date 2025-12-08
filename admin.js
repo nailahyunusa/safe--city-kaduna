@@ -67,11 +67,29 @@ function loadTable(reports) {
   reports.forEach((report, index) => {
     const severity = getSeverity(report.type);
 
+    // Debug: log photo info
+    if (report.photo) {
+      if (typeof report.photo === 'string' && report.photo.startsWith('data:')) {
+        console.log(`[REPORT ${report.id}] photo: data URL (${report.photo.substring(0,30)}...)`);
+      } else {
+        console.log(`[REPORT ${report.id}] photo: ${report.photo} (not a data URL)`);
+      }
+    }
+
     const row = document.createElement("tr");
     row.className = severity;
 
-    // Photo thumbnail (if present)
-    const photoCell = report.photo ? `<td><img src="${report.photo}" alt="photo" style="width:72px;height:56px;object-fit:cover;border-radius:4px;border:1px solid #ddd;"></td>` : `<td>—</td>`;
+    // Photo thumbnail (only show if it's a data URL). If it's a legacy filename, show filename placeholder.
+    let photoCell = '<td>—</td>';
+    if (report.photo) {
+      if (typeof report.photo === 'string' && report.photo.startsWith('data:')) {
+        photoCell = `<td><img src="${report.photo}" alt="photo" style="width:72px;height:56px;object-fit:cover;border-radius:4px;border:1px solid #ddd;"></td>`;
+      } else {
+        // legacy value (probably just filename) — can't access the file from localStorage
+        const safeFilename = String(report.photo).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        photoCell = `<td title="${safeFilename}">Uploaded: ${safeFilename}</td>`;
+      }
+    }
 
     row.innerHTML = `
       <td>${index + 1}</td>
@@ -245,6 +263,27 @@ window.clearAllData = function() {
   if (reportCountEl) reportCountEl.textContent = 'Reports: 0';
   showToast('🗑️ All reports cleared!');
   console.log('All reports cleared via clearAllData()');
+};
+
+// Debug helper: add a sample report with a tiny embedded image (so you can test thumbnails)
+window.addSampleImageReport = function() {
+  const existing = JSON.parse(localStorage.getItem('crimeReports')) || [];
+  const sampleData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABJ0lEQVR4nO3XwQnAIBAEQe3/6c6NQ4VqTgkZHb0GfZ3gBAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgT8h9mX9zQq2G3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7m3q6P7k4ADwqY1v3U4xMAAAAASUVORK5CYII=';
+  const newReport = {
+    id: existing.length ? Math.max(...existing.map(r=>r.id)) + 1 : 1,
+    type: 'theft',
+    description: 'Sample with image',
+    address: 'Sample address',
+    contact: '000',
+    photo: sampleData,
+    location: { lat: 9.06, lng: 7.50 },
+    date: new Date().toISOString()
+  };
+  existing.push(newReport);
+  localStorage.setItem('crimeReports', JSON.stringify(existing));
+  console.log('Sample image report added.');
+  // refresh UI if on admin page
+  if (typeof refreshReports === 'function') refreshReports();
 };
 
 // ============================
