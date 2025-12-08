@@ -70,9 +70,13 @@ function loadTable(reports) {
     const row = document.createElement("tr");
     row.className = severity;
 
+    // Photo thumbnail (if present)
+    const photoCell = report.photo ? `<td><img src="${report.photo}" alt="photo" style="width:72px;height:56px;object-fit:cover;border-radius:4px;border:1px solid #ddd;"></td>` : `<td>—</td>`;
+
     row.innerHTML = `
       <td>${index + 1}</td>
       <td>${report.type}</td>
+      ${photoCell}
       <td>${severity.toUpperCase()}</td>
       <td>${report.address || "Not provided"}</td>
       <td>${report.contact || "N/A"}</td>
@@ -165,8 +169,11 @@ function loadMap(reports) {
       this.openPopup();
     });
 
+    const photoHtml = r.photo ? `<div style="margin:6px 0;"><img src="${r.photo}" alt="report photo" style="max-width:200px;display:block;border-radius:6px;border:1px solid #ccc;"/></div>` : '';
+
     marker.bindPopup(`
       <div style="font-size: 13px; width: 220px;">
+        ${photoHtml}
         <b>${r.type}</b><br>
         Severity: <strong>${severity.toUpperCase()}</strong><br>
         ${r.address ? 'Address: ' + r.address : 'No address provided'}<br>

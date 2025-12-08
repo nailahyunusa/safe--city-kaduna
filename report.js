@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ============================
 // Form Submission
 // ============================
-reportForm.addEventListener('submit', (e) => {
+reportForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const type = document.getElementById('type').value;
@@ -105,7 +105,6 @@ reportForm.addEventListener('submit', (e) => {
   const address = document.getElementById('address').value.trim();
   const contact = document.getElementById('contact').value.trim();
   const photoInput = document.getElementById('photo');
-  const photo = photoInput.files.length ? photoInput.files[0].name : '';
 
   if (!type) {
     alert('Please select an incident type.');
@@ -123,6 +122,23 @@ reportForm.addEventListener('submit', (e) => {
   // Get existing reports from localStorage
   const existingReports = JSON.parse(localStorage.getItem('crimeReports')) || [];
 
+  // Read photo as data URL (if provided)
+  let photoData = '';
+  if (photoInput && photoInput.files && photoInput.files.length) {
+    const file = photoInput.files[0];
+    try {
+      photoData = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    } catch (err) {
+      console.warn('Failed to read photo file:', err);
+      photoData = '';
+    }
+  }
+
   // Create new report with location data
   const newReport = {
     id: existingReports.length ? Math.max(...existingReports.map(r => r.id)) + 1 : 1,
@@ -130,7 +146,8 @@ reportForm.addEventListener('submit', (e) => {
     description,
     address,
     contact,
-    photo,
+    // store data URL (or empty string)
+    photo: photoData,
     location: currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : null,
     date: new Date().toISOString()
   };
