@@ -33,8 +33,9 @@ function logout() {
 // ============================
 
 function getSeverity(type) {
-  if (["Armed Robbery", "Kidnapping"].includes(type)) return "high";
-  if (["Assault", "Theft"].includes(type)) return "medium";
+  const lowerType = type.toLowerCase();
+  if (["armed robbery", "kidnapping"].includes(lowerType)) return "high";
+  if (["assault", "theft"].includes(lowerType)) return "medium";
   return "low";
 }
 
@@ -92,10 +93,16 @@ let markerLayer = null;
 
 function loadMap(reports) {
   const mapEl = document.getElementById('map');
-  if (!mapEl) return;
+  if (!mapEl) {
+    console.warn("Map element not found!");
+    return;
+  }
+
+  console.log(`[MAP] Loading map with ${reports.length} reports`);
 
   // Initialize map once
   if (!adminMap) {
+    console.log("[MAP] Initializing new map instance");
     adminMap = L.map('map', { zoomControl: true }).setView([9.05785, 7.49508], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -106,8 +113,10 @@ function loadMap(reports) {
     // Ensure map resizes after initialization
     setTimeout(() => {
       adminMap.invalidateSize();
+      console.log("[MAP] invalidateSize() called");
     }, 100);
   } else {
+    console.log("[MAP] Clearing existing markers");
     markerLayer.clearLayers();
   }
 
@@ -122,14 +131,14 @@ function loadMap(reports) {
     if (r.location && r.location.lat && r.location.lng) {
       lat = r.location.lat;
       lng = r.location.lng;
-      console.log(`Report ${r.id}: Using real location: [${lat}, ${lng}]`);
+      console.log(`[MARKER ${r.id}] Using real location: [${lat}, ${lng}]`);
     } else {
       // Fallback: Use default Kaduna location with slight offset for visualization
       const defaultLat = 9.05785;
       const defaultLng = 7.49508;
       lat = defaultLat + (index * 0.015); // Offset each marker slightly
       lng = defaultLng + (index * 0.015);
-      console.log(`Report ${r.id}: NO LOCATION DATA - using fallback offset: [${lat}, ${lng}]`);
+      console.log(`[MARKER ${r.id}] NO LOCATION DATA - using fallback offset: [${lat}, ${lng}]`);
     }
 
     // Create custom color based on severity
@@ -137,6 +146,8 @@ function loadMap(reports) {
     let markerColor = '#4CAF50'; // green for low
     if (severity === 'medium') markerColor = '#FF9800'; // orange
     if (severity === 'high') markerColor = '#F44336'; // red
+
+    console.log(`[MARKER ${r.id}] Creating ${severity} marker (${markerColor})`);
 
     const marker = L.circleMarker([lat, lng], {
       radius: 10,
@@ -168,18 +179,21 @@ function loadMap(reports) {
   if (bounds.length > 1) {
     try {
       adminMap.fitBounds(bounds, { maxZoom: 13, padding: [80, 80] });
+      console.log(`[MAP] Fitted bounds for ${bounds.length} markers`);
     } catch (e) {
-      console.log("Map bounds error:", e);
+      console.log("[MAP] Bounds fit error:", e);
       adminMap.setView([9.05785, 7.49508], 12);
     }
   } else if (bounds.length === 1) {
     adminMap.setView(bounds[0], 13);
+    console.log(`[MAP] Single marker - set view to [${bounds[0][0]}, ${bounds[0][1]}]`);
   } else {
     // No markers, show Kaduna city center
     adminMap.setView([9.05785, 7.49508], 12);
+    console.log("[MAP] No markers - showing Kaduna city center");
   }
 
-  console.log(`Map loaded with ${markerCount} markers`);
+  console.log(`[MAP] ✅ Completed. Total markers added: ${markerCount}`);
 }
 
 // ============================
@@ -222,12 +236,54 @@ document.addEventListener('DOMContentLoaded', () => {
   function refreshReports() {
     const reports = JSON.parse(localStorage.getItem('crimeReports')) || [];
     console.log(`Refreshing reports: ${reports.length} reports found`);
+    if (reports.length > 0) {
+      console.log('First report:', reports[0]);
+    }
     
     if (mapEl || tableEl) {
       loadTable(reports);
       loadMap(reports);
     }
   }
+
+  // Debug function: Add test data to localStorage
+  window.addTestData = function() {
+    const testReports = [
+      {
+        id: 1,
+        type: "theft",
+        description: "Bag stolen from market",
+        address: "Ahmadu Bello Way, Kaduna",
+        contact: "08012345678",
+        photo: "",
+        location: { lat: 9.06, lng: 7.50 },
+        date: new Date().toISOString()
+      },
+      {
+        id: 2,
+        type: "assault",
+        description: "Street fight reported",
+        address: "Kawo Junction, Kaduna",
+        contact: "08087654321",
+        photo: "",
+        location: { lat: 9.08, lng: 7.52 },
+        date: new Date().toISOString()
+      },
+      {
+        id: 3,
+        type: "kidnapping",
+        description: "Missing person alert",
+        address: "Unguwa Oya, Kaduna",
+        contact: "08056789012",
+        photo: "",
+        location: { lat: 9.04, lng: 7.48 },
+        date: new Date().toISOString()
+      }
+    ];
+    localStorage.setItem('crimeReports', JSON.stringify(testReports));
+    console.log("✅ Test data added! Refreshing...");
+    refreshReports();
+  };
 
   // If this page includes admin report table or map, load reports
   if (mapEl || tableEl) {
