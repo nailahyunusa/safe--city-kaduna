@@ -131,7 +131,6 @@ function loadMap(reports) {
       lng = defaultLng + (index * 0.015);
       console.log(`Report ${r.id}: NO LOCATION DATA - using fallback offset: [${lat}, ${lng}]`);
     }
-    }
 
     // Create custom color based on severity
     const severity = getSeverity(r.type);
