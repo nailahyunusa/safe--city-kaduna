@@ -79,9 +79,12 @@ function loadTable(reports) {
       <td>${new Date(report.date).toLocaleString()}</td>
       <td><span class="status new">NEW</span></td>
     `;
-
     tbody.appendChild(row);
   });
+
+  // Update report count display
+  const reportCountEl = document.getElementById('reportCount');
+  if (reportCountEl) reportCountEl.textContent = `Reports: ${reports.length}`;
 }
 
 // ============================
@@ -220,6 +223,22 @@ function sendAlert(alertType, report) {
 
   showToast(`📲 ${alertType.toUpperCase()} alert sent for ${report.type}`);
 }
+
+// ============================
+// Debug: clear stored reports
+// ============================
+window.clearAllData = function() {
+  localStorage.removeItem('crimeReports');
+  if (markerLayer && typeof markerLayer.clearLayers === 'function') {
+    markerLayer.clearLayers();
+  }
+  const tbody = document.querySelector('#reportsTable tbody');
+  if (tbody) tbody.innerHTML = '';
+  const reportCountEl = document.getElementById('reportCount');
+  if (reportCountEl) reportCountEl.textContent = 'Reports: 0';
+  showToast('🗑️ All reports cleared!');
+  console.log('All reports cleared via clearAllData()');
+};
 
 // ============================
 // Real-time Updates & Initialization

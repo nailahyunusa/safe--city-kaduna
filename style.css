@@ -334,6 +334,44 @@ th {
   background: #1565c0;
 }
 
+.debug-panel {
+  background: #e8f4f8;
+  border-left: 4px solid #17a2b8;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.debug-panel h3 {
+  margin-top: 0;
+  color: #0c5460;
+  font-size: 0.95em;
+}
+
+.debug-panel p {
+  margin: 8px 0;
+  font-size: 0.9em;
+  color: #0c5460;
+  font-weight: bold;
+}
+
+.debug-panel button {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-right: 8px;
+  margin-top: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background 0.3s;
+}
+
+.debug-panel button:hover {
+  background: #138496;
+}
+
 tr.low { background: #e8f5e9; }
 tr.medium { background: #fff3e0; }
 tr.high {

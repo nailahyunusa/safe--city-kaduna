@@ -1,0 +1,64 @@
+NETLIFY DEPLOYMENT GUIDE
+========================
+
+STEP 1: Create a Netlify Account
+1. Go to https://app.netlify.com
+2. Click "Sign up"
+3. Choose "Sign up with GitHub" (easiest option)
+4. Authorize Netlify to access your GitHub account
+
+STEP 2: Push Your Project to GitHub
+1. Create a GitHub repository:
+   - Go to https://github.com/new
+   - Name: safecity-kaduna
+   - Description: SafeCity Crime Reporting PWA
+   - Choose Public or Private
+   - Click "Create repository"
+
+2. Push your code:
+   cd "c:\Users\Nailah YUNUSA\Desktop\project22"
+   git remote add origin https://github.com/YOUR_USERNAME/safecity-kaduna.git
+   git branch -M main
+   git push -u origin main
+
+   (Replace YOUR_USERNAME with your actual GitHub username)
+
+STEP 3: Connect to Netlify
+1. In Netlify, click "Import an existing project"
+2. Connect GitHub
+3. Select your "safecity-kaduna" repository
+4. Click "Deploy"
+
+Netlify will automatically:
+- Detect your netlify.toml configuration
+- Deploy your files
+- Generate an HTTPS URL (e.g., https://safecity-kaduna.netlify.app)
+- Enable SSL/HTTPS automatically
+- Set up continuous deployment (auto-deploy on git push)
+
+STEP 4: Test Your PWA
+1. Visit your Netlify URL in a browser
+2. Look for "Install" button in the address bar
+3. Click to install the app!
+4. On mobile, you'll get full PWA support
+
+STEP 5: Custom Domain (Optional)
+1. In Netlify, go to Site settings → Domain management
+2. Click "Add custom domain"
+3. Add your domain (requires DNS changes)
+
+WHAT YOU GET:
+✅ HTTPS (required for PWA)
+✅ Automatic SSL certificate
+✅ Free hosting
+✅ Continuous deployment (auto-redeploy on git push)
+✅ PWA installable on mobile and desktop
+✅ Offline support via Service Worker
+✅ Custom domain support
+
+TROUBLESHOOTING:
+- If deploy fails, check your repository is public
+- Make sure netlify.toml is in the root directory
+- Check Netlify deploy logs for errors
+
+Your app will be live in minutes!
