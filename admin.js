@@ -96,12 +96,17 @@ function loadMap(reports) {
 
   // Initialize map once
   if (!adminMap) {
-    adminMap = L.map('map').setView([9.05785, 7.49508], 12);
+    adminMap = L.map('map', { zoomControl: true }).setView([9.05785, 7.49508], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(adminMap);
     markerLayer = L.layerGroup().addTo(adminMap);
+    
+    // Ensure map resizes after initialization
+    setTimeout(() => {
+      adminMap.invalidateSize();
+    }, 100);
   } else {
     markerLayer.clearLayers();
   }
@@ -117,12 +122,15 @@ function loadMap(reports) {
     if (r.location && r.location.lat && r.location.lng) {
       lat = r.location.lat;
       lng = r.location.lng;
+      console.log(`Report ${r.id}: Using real location: [${lat}, ${lng}]`);
     } else {
       // Fallback: Use default Kaduna location with slight offset for visualization
       const defaultLat = 9.05785;
       const defaultLng = 7.49508;
-      lat = defaultLat + (index * 0.01); // Offset each marker slightly
-      lng = defaultLng + (index * 0.01);
+      lat = defaultLat + (index * 0.015); // Offset each marker slightly
+      lng = defaultLng + (index * 0.015);
+      console.log(`Report ${r.id}: NO LOCATION DATA - using fallback offset: [${lat}, ${lng}]`);
+    }
     }
 
     // Create custom color based on severity
@@ -132,34 +140,44 @@ function loadMap(reports) {
     if (severity === 'high') markerColor = '#F44336'; // red
 
     const marker = L.circleMarker([lat, lng], {
-      radius: 8,
+      radius: 10,
       fillColor: markerColor,
       color: '#fff',
-      weight: 2,
+      weight: 3,
       opacity: 1,
-      fillOpacity: 0.8
+      fillOpacity: 0.85
     }).addTo(markerLayer);
 
+    marker.on('click', function() {
+      this.openPopup();
+    });
+
     marker.bindPopup(`
-      <b>${r.type}</b><br>
-      Severity: ${severity.toUpperCase()}<br>
-      ${r.address ? 'Address: ' + r.address : 'No address'}<br>
-      <i>${new Date(r.date).toLocaleString()}</i>
-    `);
+      <div style="font-size: 13px; width: 220px;">
+        <b>${r.type}</b><br>
+        Severity: <strong>${severity.toUpperCase()}</strong><br>
+        ${r.address ? 'Address: ' + r.address : 'No address provided'}<br>
+        <i>${new Date(r.date).toLocaleString()}</i>
+      </div>
+    `, { maxWidth: 250 });
 
     bounds.push([lat, lng]);
     markerCount++;
   });
 
-  // Fit map to show all markers
+  // Fit map to show all markers or default to Kaduna
   if (bounds.length > 1) {
     try {
-      adminMap.fitBounds(bounds, { maxZoom: 14, padding: [50, 50] });
+      adminMap.fitBounds(bounds, { maxZoom: 13, padding: [80, 80] });
     } catch (e) {
       console.log("Map bounds error:", e);
+      adminMap.setView([9.05785, 7.49508], 12);
     }
   } else if (bounds.length === 1) {
-    adminMap.setView(bounds[0], 14);
+    adminMap.setView(bounds[0], 13);
+  } else {
+    // No markers, show Kaduna city center
+    adminMap.setView([9.05785, 7.49508], 12);
   }
 
   console.log(`Map loaded with ${markerCount} markers`);
@@ -201,11 +219,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const whatsappBtn = document.getElementById("whatsappBtn");
   const smsBtn = document.getElementById("smsBtn");
 
+  // Function to refresh reports
+  function refreshReports() {
+    const reports = JSON.parse(localStorage.getItem('crimeReports')) || [];
+    console.log(`Refreshing reports: ${reports.length} reports found`);
+    
+    if (mapEl || tableEl) {
+      loadTable(reports);
+      loadMap(reports);
+    }
+  }
+
   // If this page includes admin report table or map, load reports
   if (mapEl || tableEl) {
-    const reports = JSON.parse(localStorage.getItem('crimeReports')) || [];
-    loadTable(reports);
-    loadMap(reports);
+    refreshReports();
   }
 
   // Setup Emergency Button Listeners
@@ -237,29 +264,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Check for new reports every 5 seconds
+  // Check for new reports every 2 seconds (more responsive)
   let lastReportCount = (JSON.parse(localStorage.getItem("crimeReports")) || []).length;
 
   setInterval(() => {
     let currentReports = JSON.parse(localStorage.getItem("crimeReports")) || [];
 
-    if (currentReports.length > lastReportCount) {
+    if (currentReports.length !== lastReportCount) {
       const newCount = currentReports.length - lastReportCount;
-      showToast(`🚨 ${newCount} new crime report${newCount > 1 ? 's' : ''} received`);
       
-      loadTable(currentReports);
-      loadMap(currentReports);
+      if (newCount > 0) {
+        showToast(`🚨 ${newCount} new crime report${newCount > 1 ? 's' : ''} received`);
+      } else if (newCount < 0) {
+        console.log("Reports were cleared");
+      }
       
+      refreshReports();
       lastReportCount = currentReports.length;
     }
-  }, 5000);
+  }, 2000);
 
   // Listen for storage changes (supports real-time updates from other tabs)
   window.addEventListener('storage', (e) => {
     if (e.key === 'crimeReports') {
       const reports = JSON.parse(e.newValue) || [];
-      loadTable(reports);
-      loadMap(reports);
+      console.log(`Storage event: reports updated from another tab (${reports.length} reports)`);
+      refreshReports();
     }
   });
 });

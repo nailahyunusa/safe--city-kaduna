@@ -64,7 +64,8 @@ useLocationBtn.addEventListener('click', async () => {
   const loc = await requestLocationWithPermission();
   if (loc) {
     currentLocation = { ...loc };
-    locationInfo.textContent = `Latitude: ${loc.lat.toFixed(6)}, Longitude: ${loc.lng.toFixed(6)}`;
+    locationInfo.textContent = `✅ Location captured: ${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+    locationInfo.style.color = 'green';
   }
 });
 
@@ -74,6 +75,23 @@ useLocationBtn.addEventListener('click', async () => {
 clearLocationBtn.addEventListener('click', () => {
   currentLocation = null;
   locationInfo.textContent = 'No location chosen.';
+  locationInfo.style.color = '#666';
+});
+
+// ============================
+// Auto-request location on page load
+// ============================
+document.addEventListener('DOMContentLoaded', async () => {
+  // Try to get location automatically (silently, no prompt if already denied)
+  if (navigator.geolocation) {
+    locationInfo.textContent = 'Auto-detecting location...';
+    const loc = await requestLocationWithPermission();
+    if (loc) {
+      currentLocation = { ...loc };
+      locationInfo.textContent = `✅ Location auto-detected: ${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+      locationInfo.style.color = 'green';
+    }
+  }
 });
 
 // ============================
@@ -94,10 +112,18 @@ reportForm.addEventListener('submit', (e) => {
     return;
   }
 
+  // Warn if no location provided
+  if (!currentLocation && !address) {
+    const confirmSubmit = confirm('⚠️ No location or address provided. Submit anyway?');
+    if (!confirmSubmit) {
+      return;
+    }
+  }
+
   // Get existing reports from localStorage
   const existingReports = JSON.parse(localStorage.getItem('crimeReports')) || [];
 
-  // Create new report
+  // Create new report with location data
   const newReport = {
     id: existingReports.length ? Math.max(...existingReports.map(r => r.id)) + 1 : 1,
     type,
@@ -105,20 +131,28 @@ reportForm.addEventListener('submit', (e) => {
     address,
     contact,
     photo,
-    location: currentLocation ? { ...currentLocation } : null,
+    location: currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : null,
     date: new Date().toISOString()
   };
+
+  console.log('Saving report with location:', newReport.location);
 
   // Save to localStorage
   existingReports.push(newReport);
   localStorage.setItem('crimeReports', JSON.stringify(existingReports));
 
   // Show status
-  statusMsg.textContent = 'Report submitted successfully!';
+  statusMsg.textContent = '✅ Report submitted successfully! Thank you for helping keep Kaduna safe.';
   statusMsg.style.color = 'green';
 
   // Reset form and location
   reportForm.reset();
   currentLocation = null;
   locationInfo.textContent = 'No location chosen.';
+  locationInfo.style.color = '#666';
+
+  // Clear status message after 3 seconds
+  setTimeout(() => {
+    statusMsg.textContent = '';
+  }, 3000);
 });
